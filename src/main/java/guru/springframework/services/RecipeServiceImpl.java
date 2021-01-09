@@ -1,28 +1,34 @@
 package guru.springframework.services;
 
-import guru.springframework.domain.Recipe;
-import guru.springframework.repositories.RecipeRepository;
-import lombok.extern.slf4j.Slf4j;
+import guru.springframework.commands.UnitOfMeasureCommand;
+import guru.springframework.converters.UnitOfMeasureToUnitOfMeasureCommand;
+import guru.springframework.repositories.UnitOfMeasureRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-@Slf4j
+/**
+ * Created by jt on 6/28/17.
+ */
 @Service
-public class RecipeServiceImpl implements RecipeService {
+class UnitOfMeasureServiceImpl implements UnitOfMeasureService {
 
-    private final RecipeRepository recipeRepository;
+    private final UnitOfMeasureRepository unitOfMeasureRepository;
+    private final UnitOfMeasureToUnitOfMeasureCommand unitOfMeasureToUnitOfMeasureCommand;
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository) {
-        this.recipeRepository = recipeRepository;
+    public UnitOfMeasureServiceImpl(UnitOfMeasureRepository unitOfMeasureRepository, UnitOfMeasureToUnitOfMeasureCommand unitOfMeasureToUnitOfMeasureCommand) {
+        this.unitOfMeasureRepository = unitOfMeasureRepository;
+        this.unitOfMeasureToUnitOfMeasureCommand = unitOfMeasureToUnitOfMeasureCommand;
     }
 
     @Override
-    public Set<Recipe> getRecipes() {
-        log.debug("I'm in the service");
-        Set<Recipe> recipeSet = new HashSet<>();
-        recipeRepository.findAll().iterator().forEachRemaining(recipeSet::add);
-        return recipeSet;
+    public Set<UnitOfMeasureCommand> listAllUoms() {
+
+        return StreamSupport.stream(unitOfMeasureRepository.findAll()
+                .spliterator(), false)
+                .map(unitOfMeasureToUnitOfMeasureCommand::convert)
+                .collect(Collectors.toSet());
     }
 }
